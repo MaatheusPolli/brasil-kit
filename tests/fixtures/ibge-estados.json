@@ -1,0 +1,4 @@
+[
+  { "id": 12, "sigla": "AC", "nome": "Acre", "regiao": { "id": 1, "sigla": "N", "nome": "Norte" } },
+  { "id": 35, "sigla": "SP", "nome": "São Paulo", "regiao": { "id": 3, "sigla": "SE", "nome": "Sudeste" } }
+]

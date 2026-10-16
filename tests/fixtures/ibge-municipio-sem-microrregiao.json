@@ -1,0 +1,10 @@
+{
+  "id": 5101837,
+  "nome": "Boa Esperança do Norte",
+  "microrregiao": null,
+  "regiao-imediata": {
+    "id": 510011, "nome": "Sorriso",
+    "regiao-intermediaria": { "id": 5104, "nome": "Sinop",
+      "UF": { "id": 51, "sigla": "MT", "nome": "Mato Grosso", "regiao": { "id": 5, "sigla": "CO", "nome": "Centro-Oeste" } } }
+  }
+}

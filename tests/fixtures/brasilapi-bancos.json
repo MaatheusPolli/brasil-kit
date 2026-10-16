@@ -1,0 +1,5 @@
+[
+  { "ispb": "00000000", "name": "BCO DO BRASIL S.A.", "code": 1, "fullName": "Banco do Brasil S.A." },
+  { "ispb": "00360305", "name": "CAIXA ECONOMICA FEDERAL", "code": 104, "fullName": "Caixa Econômica Federal" },
+  { "ispb": "00038166", "name": "BCB - DEPEC", "code": null, "fullName": "Banco Central do Brasil - Departamento Econômico" }
+]
