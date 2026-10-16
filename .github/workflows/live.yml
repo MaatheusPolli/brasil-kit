@@ -1,0 +1,34 @@
+name: APIs reais
+
+# Testes de integração contra ViaCEP, BrasilAPI e IBGE de verdade.
+# Separados da CI principal para que instabilidade externa não bloqueie PRs.
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 9 * * 1' # segundas, 06:17 BRT
+  pull_request:
+    paths:
+      - 'src/providers/**'
+      - 'tests/live/**'
+      - '.github/workflows/live.yml'
+      - 'Dockerfile'
+
+jobs:
+  live:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run test:live
+      - run: BRASILKIT_OFFLINE= npx tsx examples/node-basico.ts
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t brasil-kit .
+      - run: docker run --rm brasil-kit

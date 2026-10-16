@@ -1,0 +1,66 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+jobs:
+  # Vitest 5 e jsdom exigem Node 22+; o suporte da biblioteca a Node 20 é
+  # verificado pelo smoke test do dist/ no job "runtimes".
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [22, 24]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - name: Testes (Node) com cobertura ≥ 90%
+        run: npm run coverage
+      - name: Testes (jsdom / browser)
+        run: npm run test:jsdom
+      - name: Exemplos (offline)
+        run: npm run examples
+      - run: npm run build
+      - name: Smoke test do pacote (ESM + CJS)
+        run: |
+          npm run smoke
+          node --input-type=module -e "import { createBrasilClient } from './dist/index.js'; import { createCep } from './dist/cep.js'; if (typeof createBrasilClient !== 'function' || typeof createCep !== 'function') process.exit(1)"
+          node -e "const { createBrasilClient } = require('./dist/index.cjs'); if (typeof createBrasilClient !== 'function') process.exit(1)"
+
+  runtimes:
+    name: Smoke (${{ matrix.runtime }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        runtime: [node20, deno, bun]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - if: matrix.runtime == 'node20'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - if: matrix.runtime == 'node20'
+        run: node --version && node scripts/smoke.mjs
+      - if: matrix.runtime == 'deno'
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - if: matrix.runtime == 'deno'
+        run: deno run --allow-read scripts/smoke.mjs
+      - if: matrix.runtime == 'bun'
+        uses: oven-sh/setup-bun@v2
+      - if: matrix.runtime == 'bun'
+        run: bun scripts/smoke.mjs
