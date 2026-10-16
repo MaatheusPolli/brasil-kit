@@ -1,0 +1,102 @@
+{
+  "name": "brasil-kit",
+  "version": "0.1.0",
+  "description": "SDK TypeScript para APIs públicas brasileiras (ViaCEP, BrasilAPI, IBGE) com tipos, cache, retry e fallback.",
+  "keywords": [
+    "cep",
+    "cnpj",
+    "ibge",
+    "viacep",
+    "brasilapi",
+    "brasil",
+    "sdk"
+  ],
+  "license": "MIT",
+  "author": "Matheus Gasparotto Polli",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./cep": {
+      "types": "./dist/cep.d.ts",
+      "import": "./dist/cep.js",
+      "require": "./dist/cep.cjs"
+    },
+    "./cnpj": {
+      "types": "./dist/cnpj.d.ts",
+      "import": "./dist/cnpj.js",
+      "require": "./dist/cnpj.cjs"
+    },
+    "./ibge": {
+      "types": "./dist/ibge.d.ts",
+      "import": "./dist/ibge.js",
+      "require": "./dist/ibge.cjs"
+    },
+    "./bancos": {
+      "types": "./dist/bancos.d.ts",
+      "import": "./dist/bancos.js",
+      "require": "./dist/bancos.cjs"
+    },
+    "./feriados": {
+      "types": "./dist/feriados.d.ts",
+      "import": "./dist/feriados.js",
+      "require": "./dist/feriados.cjs"
+    },
+    "./ddd": {
+      "types": "./dist/ddd.d.ts",
+      "import": "./dist/ddd.js",
+      "require": "./dist/ddd.cjs"
+    },
+    "./core": {
+      "types": "./dist/core.d.ts",
+      "import": "./dist/core.js",
+      "require": "./dist/core.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:jsdom": "vitest run --environment jsdom",
+    "coverage": "vitest run --coverage",
+    "examples": "BRASILKIT_OFFLINE=1 tsx examples/node-basico.ts && BRASILKIT_OFFLINE=1 tsx examples/com-cache-custom.ts",
+    "docs": "typedoc",
+    "prepublishOnly": "npm run typecheck && npm test && npm run build",
+    "changeset": "changeset",
+    "release": "npm run build && changeset publish",
+    "smoke": "node scripts/smoke.mjs",
+    "test:live": "vitest run --config vitest.live.config.ts"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^3.0.3",
+    "@types/node": "^26.6.3",
+    "@vitest/coverage-v8": "^5.0.3",
+    "jsdom": "^30.1.1",
+    "tsup": "^8.5.1",
+    "tsx": "^4.23.15",
+    "typedoc": "^0.28.20",
+    "typescript": "^5.9.3",
+    "vitest": "^5.0.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MaatheusPolli/brasil-kit.git"
+  },
+  "homepage": "https://github.com/MaatheusPolli/brasil-kit#readme",
+  "bugs": {
+    "url": "https://github.com/MaatheusPolli/brasil-kit/issues"
+  }
+}

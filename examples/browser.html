@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>BrasilKit no browser</title>
+  </head>
+  <body>
+    <form id="f">
+      <input id="cep" placeholder="CEP" value="01001-000" />
+      <button>Buscar</button>
+    </form>
+    <pre id="out"></pre>
+    <script type="module">
+      // Após `npm run build`, sirva a raiz do projeto (ex.: `npx serve .`) e abra /examples/browser.html
+      import { createBrasilClient, createLocalStorageCache, BrasilKitError } from '../dist/index.js';
+
+      const brasil = createBrasilClient({ cache: createLocalStorageCache() });
+      const out = document.getElementById('out');
+      document.getElementById('f').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        try {
+          out.textContent = JSON.stringify(await brasil.cep.get(document.getElementById('cep').value), null, 2);
+        } catch (err) {
+          out.textContent = err instanceof BrasilKitError ? `${err.name} (${err.code}): ${err.message}` : String(err);
+        }
+      });
+    </script>
+  </body>
+</html>
