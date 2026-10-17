@@ -11,7 +11,7 @@
     "brasil",
     "sdk"
   ],
-  "license": "MIT",
+  "license": "SEE LICENSE IN LICENSE",
   "author": "Matheus Gasparotto Polli",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -72,7 +72,7 @@
     "test": "vitest run",
     "test:jsdom": "vitest run --environment jsdom",
     "coverage": "vitest run --coverage",
-    "examples": "BRASILKIT_OFFLINE=1 tsx examples/node-basico.ts && BRASILKIT_OFFLINE=1 tsx examples/com-cache-custom.ts",
+    "examples": "node scripts/examples.mjs",
     "docs": "typedoc",
     "prepublishOnly": "npm run typecheck && npm test && npm run build",
     "changeset": "changeset",
