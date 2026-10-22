@@ -21,6 +21,12 @@ build/
 .next/
 out/
 
+# Ignorar cobertura de testes
+coverage/
+
+# Ignorar pacotes locais
+*.zip
+
 # Ignorar logs
 *.log
 logs/

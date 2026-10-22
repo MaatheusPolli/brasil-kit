@@ -52,13 +52,17 @@ try {
 | Recurso | Métodos | Provider(s) |
 |---------|---------|-------------|
 | `cep` | `get(cep)`, `search({ uf, cidade, logradouro })` | ViaCEP → BrasilAPI (fallback) |
-| `cnpj` | `get(cnpj)` — dados cadastrais, sócios e CNAEs | BrasilAPI → Minha Receita (fallback) |
+| `cnpj` | `get(cnpj)` — dados cadastrais, sócios e CNAEs (aceita CNPJ numérico e alfanumérico) | BrasilAPI → Minha Receita (fallback) |
 | `ibge` | `estados()`, `municipiosPorUf(uf)`, `municipioPorCodigo(cod)` | IBGE |
 | `bancos` | `list()`, `getByCode(code)` | BrasilAPI |
 | `feriados` | `get(ano)` | BrasilAPI |
 | `ddd` | `get(ddd)` | BrasilAPI |
 
 Toda entrada é validada **antes** de ir para a rede (CEP com 8 dígitos, CNPJ com dígitos verificadores, UF válida...) e gera `ValidationError` de forma síncrona.
+
+O CNPJ aceita o formato numérico e o **alfanumérico** da Receita Federal (12 caracteres `A-Z0-9` + 2 dígitos verificadores, em vigor desde julho de 2026) — por exemplo `00.000.000/E08G-12`. Os dígitos verificadores são conferidos pelo módulo 11 sobre o valor ASCII de cada caractere menos 48, regra em que os CNPJs numéricos antigos seguem válidos.
+
+Chamadas simultâneas da mesma chave são agrupadas: dois `brasil.cep.get('01001000')` em paralelo fazem **uma** requisição (quando o cache está ativo).
 
 ## Configuração
 

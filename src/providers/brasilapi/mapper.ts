@@ -32,7 +32,11 @@ export function mapBrasilApiCep(raw: BrasilApiCep): Endereco {
 export function mapBrasilApiCnpj(raw: BrasilApiCnpj, fonte: FonteCnpj = 'brasilapi'): Empresa {
   const logradouro = [text(raw.descricao_tipo_de_logradouro), text(raw.logradouro)].filter(Boolean).join(' ');
   const empresa: Empresa = {
-    cnpj: String(raw.cnpj).replace(/\D/g, '').padStart(14, '0'),
+    // Mantém letras: o CNPJ alfanumérico (desde 2026) usa `A-Z` nos 12 primeiros caracteres.
+    cnpj: String(raw.cnpj)
+      .replace(/[.\-/\s]/g, '')
+      .toUpperCase()
+      .padStart(14, '0'),
     razaoSocial: raw.razao_social,
     situacao: text(raw.descricao_situacao_cadastral) ?? 'DESCONHECIDA',
     cnaePrincipal: { codigo: String(raw.cnae_fiscal), descricao: raw.cnae_fiscal_descricao },

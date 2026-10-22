@@ -32,7 +32,21 @@ describe('cnpj.get', () => {
     await expect(brasil.cnpj.get('11222333000181')).rejects.toBeInstanceOf(NotFoundError);
   });
 
-  it.each(['123', '00000000000192', '11111111111111', '11222333000180'])('inválido %s', (cnpj) => {
+  it('aceita CNPJ alfanumérico (formato vigente desde 2026)', async () => {
+    const { brasil, fetch } = client([['brasilapi.com.br/api/cnpj/v1/00000000E08G12', ok(fixture('brasilapi-cnpj'))]]);
+    await expect(brasil.cnpj.get('00.000.000/E08G-12')).resolves.toMatchObject({ razaoSocial: 'BANCO DO BRASIL SA' });
+    await brasil.cnpj.get('00000000e08g12');
+    expect(fetch.calls).toHaveLength(1);
+  });
+
+  it('chamadas simultâneas do mesmo CNPJ fazem uma única requisição', async () => {
+    const { brasil, fetch } = client([['brasilapi.com.br/api/cnpj', ok(fixture('brasilapi-cnpj'))]]);
+    const [a, b] = await Promise.all([brasil.cnpj.get('00000000000191'), brasil.cnpj.get('00.000.000/0001-91')]);
+    expect(a).toEqual(b);
+    expect(fetch.calls).toHaveLength(1);
+  });
+
+  it.each(['123', '00000000000192', '11111111111111', '11222333000180', '00000000E08G13', 'AAAAAAAAAAAAAA', '0000000E08G12'])('inválido %s', (cnpj) => {
     const { brasil } = client([]);
     expect(() => brasil.cnpj.get(cnpj)).toThrow(ValidationError);
   });

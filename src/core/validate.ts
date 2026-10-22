@@ -15,21 +15,33 @@ export function normalizeUf(input: string): UF {
   return input.toUpperCase() as UF;
 }
 
+/**
+ * Normaliza um CNPJ numérico ou alfanumérico (formato da Receita Federal em vigor
+ * desde julho de 2026: 12 caracteres `A-Z0-9` + 2 dígitos verificadores numéricos).
+ * Remove a máscara, converte para maiúsculas e valida os dígitos verificadores
+ * pelo módulo 11 sobre o valor ASCII de cada caractere menos 48.
+ */
 export function normalizeCnpj(input: string): string {
-  const digits = typeof input === 'string' ? onlyDigits(input) : '';
-  if (digits.length !== 14 || /^(\d)\1{13}$/.test(digits) || !cnpjChecksumOk(digits))
+  const value = typeof input === 'string' ? input.trim().replace(/[.\-/\s]/g, '').toUpperCase() : '';
+  if (!/^[A-Z0-9]{12}[0-9]{2}$/.test(value) || isRepeated(value) || !cnpjChecksumOk(value))
     throw new ValidationError(`CNPJ inválido: "${String(input)}"`);
-  return digits;
+  return value;
 }
 
-function cnpjChecksumOk(d: string): boolean {
+/** Sequências de um único caractere repetido (ex.: `00000000000000`) nunca são válidas. */
+const isRepeated = (value: string): boolean => [...value].every((char) => char === value[0]);
+
+/** Valor de um caractere do CNPJ no cálculo do DV: dígitos 0–9, letras a partir de 17 (A=17). */
+const cnpjCharValue = (char: string): number => char.charCodeAt(0) - 48;
+
+function cnpjChecksumOk(value: string): boolean {
   const calc = (len: number) => {
     const weights = len === 12 ? [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2] : [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
-    const sum = weights.reduce((acc, w, i) => acc + w * Number(d[i]), 0);
+    const sum = weights.reduce((acc, w, i) => acc + w * cnpjCharValue(value[i]!), 0);
     const r = sum % 11;
     return r < 2 ? 0 : 11 - r;
   };
-  return calc(12) === Number(d[12]) && calc(13) === Number(d[13]);
+  return calc(12) === Number(value[12]) && calc(13) === Number(value[13]);
 }
 
 export function requireText(value: string, field: string, min = 1): string {
