@@ -1,5 +1,11 @@
 # brasil-sdk
 
+## 0.2.1
+
+### Patch Changes
+
+- 633a72b: Teste do fluxo de release automático (changesets + trusted publishing).
+
 ## 0.2.0
 
 ### Minor Changes
