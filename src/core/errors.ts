@@ -1,4 +1,4 @@
-export type ErrorCode = 'NOT_FOUND' | 'RATE_LIMIT' | 'TIMEOUT' | 'PROVIDER' | 'VALIDATION';
+export type ErrorCode = 'NOT_FOUND' | 'RATE_LIMIT' | 'TIMEOUT' | 'PROVIDER' | 'VALIDATION' | 'CANCELED';
 
 export interface ErrorDetails {
   provider?: string;
@@ -50,6 +50,13 @@ export class TimeoutError extends BrasilKitError {
 export class ProviderError extends BrasilKitError {
   constructor(message = 'Falha no provider', details?: ErrorDetails) {
     super('PROVIDER', message, details);
+  }
+}
+
+/** Cancelamento pedido pelo chamador via `AbortSignal`. Nunca gera retry nem fallback. */
+export class CanceledError extends BrasilKitError {
+  constructor(message = 'Requisição cancelada', details?: ErrorDetails) {
+    super('CANCELED', message, details);
   }
 }
 

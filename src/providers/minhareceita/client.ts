@@ -1,4 +1,4 @@
-import type { HttpClient } from '../../core/http.js';
+import type { HttpClient, RequestOptions } from '../../core/http.js';
 import { mapBrasilApiCnpj } from '../brasilapi/mapper.js';
 import type { BrasilApiCnpj } from '../brasilapi/types.js';
 
@@ -8,7 +8,7 @@ export const MINHARECEITA_URL = 'https://minhareceita.org';
 export function createMinhaReceita(http: HttpClient, baseUrl = MINHARECEITA_URL) {
   return {
     name: 'minhareceita' as const,
-    getCnpj: async (cnpj: string) =>
-      mapBrasilApiCnpj(await http.getJson<BrasilApiCnpj>(`${baseUrl}/${cnpj}`, 'minhareceita'), 'minhareceita'),
+    getCnpj: async (cnpj: string, options?: RequestOptions) =>
+      mapBrasilApiCnpj(await http.getJson<BrasilApiCnpj>(`${baseUrl}/${cnpj}`, 'minhareceita', options), 'minhareceita'),
   };
 }

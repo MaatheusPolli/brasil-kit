@@ -1,4 +1,5 @@
-import { cached, type CoreContext } from '../core/context.js';
+import { cached, dedupe, type CoreContext } from '../core/context.js';
+import type { RequestOptions } from '../core/http.js';
 import { fallback } from '../core/fallback.js';
 import { normalizeCep, normalizeUf, requireText } from '../core/validate.js';
 import type { BuscaEnderecoParams, Endereco, FonteCep } from '../domain/endereco.js';
@@ -12,9 +13,9 @@ export interface CepResourceOptions {
 
 export interface CepResource {
   /** Busca um CEP com fallback ViaCEP ↔ BrasilAPI. Aceita `01001000` ou `01001-000`. */
-  get(cep: string): Promise<Endereco>;
+  get(cep: string, options?: RequestOptions): Promise<Endereco>;
   /** Busca CEPs por endereço (ViaCEP). `cidade` e `logradouro` exigem ao menos 3 caracteres. */
-  search(params: BuscaEnderecoParams): Promise<Endereco[]>;
+  search(params: BuscaEnderecoParams, options?: RequestOptions): Promise<Endereco[]>;
 }
 
 export function createCep(ctx: CoreContext, options: CepResourceOptions = {}): CepResource {
@@ -24,16 +25,16 @@ export function createCep(ctx: CoreContext, options: CepResourceOptions = {}): C
   const lookup = { viacep: viacep.getCep, brasilapi: brasilapi.getCep };
 
   return {
-    get(input) {
+    get(input, options) {
       const cep = normalizeCep(input);
-      return cached(ctx, `cep:${cep}`, () => fallback(order.map((name) => () => lookup[name](cep))));
+      return cached(ctx, `cep:${cep}`, () => fallback(order.map((name) => () => lookup[name](cep, options))), dedupe(options));
     },
-    search(params) {
+    search(params, options) {
       const uf = normalizeUf(params?.uf as string);
       const cidade = requireText(params.cidade, 'cidade', 3);
       const logradouro = requireText(params.logradouro, 'logradouro', 3);
       const key = `cep:search:${uf}:${cidade.toLowerCase()}:${logradouro.toLowerCase()}`;
-      return cached(ctx, key, () => viacep.search(uf, cidade, logradouro));
+      return cached(ctx, key, () => viacep.search(uf, cidade, logradouro, options), dedupe(options));
     },
   };
 }

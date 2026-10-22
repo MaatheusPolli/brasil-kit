@@ -64,6 +64,23 @@ O CNPJ aceita o formato numérico e o **alfanumérico** da Receita Federal (12 c
 
 Chamadas simultâneas da mesma chave são agrupadas: dois `brasil.cep.get('01001000')` em paralelo fazem **uma** requisição (quando o cache está ativo).
 
+### Cancelamento
+
+Todo método aceita um `AbortSignal` como última opção. O cancelamento gera `CanceledError`, não dispara retry nem fallback, e não afeta outras chamadas da mesma chave.
+
+```ts
+import { CanceledError } from 'brasil-sdk';
+
+const controller = new AbortController();
+setTimeout(() => controller.abort(), 300);
+
+try {
+  await brasil.cep.get('01001000', { signal: controller.signal });
+} catch (err) {
+  if (err instanceof CanceledError) { /* busca cancelada */ }
+}
+```
+
 ## Configuração
 
 ```ts

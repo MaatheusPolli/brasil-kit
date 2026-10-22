@@ -1,4 +1,4 @@
-import { NotFoundError, ProviderError, RateLimitError, TimeoutError, BrasilKitError } from './errors.js';
+import { CanceledError, NotFoundError, ProviderError, RateLimitError, TimeoutError, BrasilKitError } from './errors.js';
 import { withRetry, type RetryOptions } from './retry.js';
 
 export interface RequestInfo {
@@ -33,8 +33,13 @@ export interface HttpOptions {
   now?: () => number;
 }
 
+/** Opções por chamada. `signal` cancela a requisição (inclusive entre tentativas do retry). */
+export interface RequestOptions {
+  readonly signal?: AbortSignal;
+}
+
 export interface HttpClient {
-  getJson<T>(url: string, provider: string): Promise<T>;
+  getJson<T>(url: string, provider: string, options?: RequestOptions): Promise<T>;
 }
 
 export function createHttp(options: HttpOptions): HttpClient {
@@ -44,17 +49,21 @@ export function createHttp(options: HttpOptions): HttpClient {
     for (const i of interceptors) await (i[hook] as ((x: typeof info) => unknown) | undefined)?.(info);
   }
 
-  async function attempt<T>(url: string, provider: string, n: number): Promise<T> {
+  async function attempt<T>(url: string, provider: string, n: number, external?: AbortSignal): Promise<T> {
     const base: RequestInfo = { url, method: 'GET', provider, attempt: n };
+    if (external?.aborted) throw canceled(provider, url, external);
     await emit('onRequest', base);
     const start = now();
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), timeout);
+    const onExternalAbort = () => controller.abort();
+    external?.addEventListener('abort', onExternalAbort, { once: true });
     try {
       let response: Response;
       try {
         response = await fetchFn(url, { method: 'GET', headers: { Accept: 'application/json' }, signal: controller.signal });
       } catch (cause) {
+        if (external?.aborted) throw canceled(provider, url, external, cause);
         if (controller.signal.aborted) throw new TimeoutError(`Timeout de ${timeout}ms em ${provider}`, { provider, url, cause });
         throw new ProviderError(`Falha de rede em ${provider}`, { provider, url, cause });
       }
@@ -63,6 +72,7 @@ export function createHttp(options: HttpOptions): HttpClient {
       try {
         return (await response.json()) as T;
       } catch (cause) {
+        if (external?.aborted) throw canceled(provider, url, external, cause);
         if (controller.signal.aborted) throw new TimeoutError(`Timeout de ${timeout}ms em ${provider}`, { provider, url, cause });
         throw new ProviderError(`Resposta inválida de ${provider}`, { provider, url, status: response.status, cause });
       }
@@ -72,12 +82,18 @@ export function createHttp(options: HttpOptions): HttpClient {
       throw err;
     } finally {
       clearTimeout(timer);
+      external?.removeEventListener('abort', onExternalAbort);
     }
   }
 
   return {
-    getJson: (url, provider) => withRetry((n) => attempt(url, provider, n), { ...retry, retries }),
+    getJson: (url, provider, options) =>
+      withRetry((n) => attempt(url, provider, n, options?.signal), { ...retry, retries }),
   };
+}
+
+function canceled(provider: string, url: string, signal: AbortSignal, cause?: unknown): CanceledError {
+  return new CanceledError(`Requisição cancelada em ${provider}`, { provider, url, cause: signal.reason ?? cause });
 }
 
 function statusError(response: Response, provider: string, url: string): BrasilKitError {

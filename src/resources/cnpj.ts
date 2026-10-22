@@ -1,4 +1,5 @@
-import { cached, type CoreContext } from '../core/context.js';
+import { cached, dedupe, type CoreContext } from '../core/context.js';
+import type { RequestOptions } from '../core/http.js';
 import { fallback } from '../core/fallback.js';
 import { normalizeCnpj } from '../core/validate.js';
 import type { Empresa, FonteCnpj } from '../domain/empresa.js';
@@ -12,16 +13,16 @@ export interface CnpjResourceOptions {
 
 export interface CnpjResource {
   /** Dados cadastrais, sócios e CNAEs, com fallback BrasilAPI ↔ Minha Receita. Valida os dígitos verificadores antes da rede. */
-  get(cnpj: string): Promise<Empresa>;
+  get(cnpj: string, options?: RequestOptions): Promise<Empresa>;
 }
 
 export function createCnpj(ctx: CoreContext, options: CnpjResourceOptions = {}): CnpjResource {
   const lookup = { brasilapi: createBrasilApi(ctx.http).getCnpj, minhareceita: createMinhaReceita(ctx.http).getCnpj };
   const order = options.providers ?? (['brasilapi', 'minhareceita'] as const);
   return {
-    get(input) {
+    get(input, options) {
       const cnpj = normalizeCnpj(input);
-      return cached(ctx, `cnpj:${cnpj}`, () => fallback(order.map((name) => () => lookup[name](cnpj))));
+      return cached(ctx, `cnpj:${cnpj}`, () => fallback(order.map((name) => () => lookup[name](cnpj, options))), dedupe(options));
     },
   };
 }
