@@ -1,10 +1,12 @@
 # brasil-sdk
 
-## Não lançado
+## 0.2.0
 
-- `cnpj.get` com fallback BrasilAPI → Minha Receita (`cnpj.providers` configurável; `fonte: 'minhareceita'`).
-- HTTP 403 passa a acionar fallback (sem retry).
-- Testes de integração com as APIs reais (`npm run test:live`), workflow "APIs reais" e Dockerfile.
+### Minor Changes
+
+- 78c1441: - CNPJ: fallback para a Minha Receita quando a BrasilAPI retorna HTTP 403.
+  - Testes live (`npm run test:live`) e Dockerfile para execução isolada.
+  - Exemplo `npm run examples` agora roda em Windows, Linux e macOS.
 
 ## 0.1.0
 
