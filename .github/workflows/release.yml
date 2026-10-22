@@ -1,14 +1,17 @@
 name: Release
 
-# Manual de propósito: nenhum push/merge publica no npm automaticamente.
-# Publicação via npm trusted publishing (OIDC): sem NPM_TOKEN salvo no GitHub.
-# Pré-requisito: o pacote precisa existir no npm e ter o trusted publisher
-# configurado para este repositório e este arquivo (release.yml).
-# Para publicar: Actions → Release → Run workflow.
+# Fluxo: push em master → changesets abre/atualiza o PR "chore: versiona pacotes".
+# Fazer merge desse PR publica no npm via trusted publishing (OIDC), com provenance.
+# Sem NPM_TOKEN salvo no GitHub. Pré-requisito: trusted publisher configurado no
+# npmjs.com para MaatheusPolli/brasil-kit e release.yml.
 on:
+  push:
+    branches: [master]
   workflow_dispatch:
 
-concurrency: ${{ github.workflow }}-${{ github.ref }}
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   release:
@@ -30,6 +33,10 @@ jobs:
       - run: npm run build
       - uses: changesets/action@v1
         with:
+          version: npx changeset version
           publish: npx changeset publish
+          commit: 'chore: versiona pacotes'
+          title: 'chore: versiona pacotes'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_CONFIG_PROVENANCE: 'true'
