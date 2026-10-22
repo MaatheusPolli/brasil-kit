@@ -34,7 +34,7 @@ try { brasil.cep.get('123'); } catch (err) { invalido = err; }
 assert(invalido instanceof ValidationError, 'CEP inválido → ValidationError');
 
 const cep = createCep(createCore({ fetch, retries: 0 }));
-assert((await cep.get('02002000')).fonte === 'viacep', 'import granular brasil-kit/cep');
+assert((await cep.get('02002000')).fonte === 'viacep', 'import granular brasil-sdk/cep');
 
 const { createHttp } = await import('../dist/core.js');
 const to = await createHttp({ fetch, timeout: 20, retries: 0 }).getJson('https://lento', 'x').catch((err) => err);

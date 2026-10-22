@@ -9,7 +9,7 @@ export interface LocalStorageCacheOptions {
 }
 
 export function createLocalStorageCache(options: LocalStorageCacheOptions = {}): CacheAdapter {
-  const { prefix = 'brasil-kit:', now = Date.now } = options;
+  const { prefix = 'brasil-sdk:', now = Date.now } = options;
   const storage = options.storage ?? (globalThis as { localStorage?: StorageLike }).localStorage;
   if (!storage) throw new Error('localStorage indisponível neste ambiente');
 

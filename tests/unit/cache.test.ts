@@ -64,7 +64,7 @@ describe('localStorage cache', () => {
   it('descarta entrada corrompida e ignora erro de cota', () => {
     const storage = fakeStorage();
     const cache = createLocalStorageCache({ storage });
-    storage.setItem('brasil-kit:x', '{quebrado');
+    storage.setItem('brasil-sdk:x', '{quebrado');
     expect(cache.get('x')).toBeUndefined();
     expect(cache.get('nada')).toBeUndefined();
     storage.setItem = () => {

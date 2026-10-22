@@ -1,5 +1,5 @@
 ---
-"brasil-kit": minor
+"brasil-sdk": minor
 ---
 
 - CNPJ: fallback para a Minha Receita quando a BrasilAPI retorna HTTP 403.

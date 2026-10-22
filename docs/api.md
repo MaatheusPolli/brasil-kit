@@ -51,6 +51,6 @@ interface Endereco {
 
 `get(ddd)` → `Ddd` (`uf`, `cidades` em ordem alfabética). DDD entre 11 e 99.
 
-## Core (`brasil-kit/core`)
+## Core (`brasil-sdk/core`)
 
 `createCore`, `createHttp`, `withRetry`, `backoffDelay`, `fallback`, `cached`, `createMemoryCache`, `createLocalStorageCache`, erros e tipos de domínio — para montar clientes sob medida.

@@ -1,4 +1,4 @@
-# brasil-kit
+# brasil-sdk
 
 ## Não lançado
 

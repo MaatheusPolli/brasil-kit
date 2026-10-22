@@ -18,20 +18,20 @@ O BrasilKit resolve isso uma vez só, com uma API consistente: todo recurso tem 
 
 - **Zero dependências de runtime** — só `fetch` + `AbortController`.
 - Funciona em **Node 20+, Deno, Bun e browsers** modernos (todos verificados na CI). Para desenvolver (rodar os testes), use Node 22+.
-- **Tree-shakeable**: importe só o recurso que usar (`brasil-kit/cep`).
+- **Tree-shakeable**: importe só o recurso que usar (`brasil-sdk/cep`).
 - **Erros tipados** com `instanceof` funcionando.
 - Campo **`fonte`** em toda resposta: você sabe qual provider respondeu.
 
 ## Instalação
 
 ```bash
-npm install brasil-kit
+npm install brasil-sdk
 ```
 
 ## Uso
 
 ```ts
-import { createBrasilClient, NotFoundError } from 'brasil-kit';
+import { createBrasilClient, NotFoundError } from 'brasil-sdk';
 
 const brasil = createBrasilClient({ cache: 'memory', timeout: 5000 });
 
@@ -84,7 +84,7 @@ A configuração é validada e congelada na criação. Não há estado global: d
 ### Cache
 
 ```ts
-import { createLocalStorageCache, type CacheAdapter } from 'brasil-kit';
+import { createLocalStorageCache, type CacheAdapter } from 'brasil-sdk';
 
 createBrasilClient({ cache: createLocalStorageCache() });        // browser
 
@@ -97,8 +97,8 @@ const redisCache: CacheAdapter = {                                 // qualquer b
 ### Import granular (tree-shaking)
 
 ```ts
-import { createCore } from 'brasil-kit/core';
-import { createCep } from 'brasil-kit/cep';
+import { createCore } from 'brasil-sdk/core';
+import { createCep } from 'brasil-sdk/cep';
 
 const cep = createCep(createCore({ timeout: 3000 }));
 ```
@@ -176,7 +176,7 @@ Requer **Node 22+** (exigência do Vitest 5 e do jsdom). Para usar a biblioteca,
 
 ```bash
 git clone https://github.com/MaatheusPolli/brasil-kit.git
-cd brasil-kit
+cd brasil-sdk
 npm install
 ```
 
@@ -198,7 +198,7 @@ Separados da suíte principal, para que instabilidade externa não quebre o dese
 
 ```bash
 npm run test:live                                  # direto
-docker build -t brasil-kit . && docker run --rm brasil-kit   # em container
+docker build -t brasil-sdk . && docker run --rm brasil-sdk   # em container
 ```
 
 Na nuvem, o workflow **APIs reais** roda toda segunda-feira, em PRs que mexem nos providers e sob demanda (Actions → APIs reais → Run workflow).
