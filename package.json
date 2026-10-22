@@ -1,6 +1,6 @@
 {
   "name": "brasil-sdk",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "SDK TypeScript para APIs públicas brasileiras (ViaCEP, BrasilAPI, IBGE) com tipos, cache, retry e fallback.",
   "keywords": [
     "cep",
