@@ -34,3 +34,6 @@ logs/
 # Ignorar OS
 .DS_Store
 Thumbs.db
+
+# Documentação gerada pelo TypeDoc (publicada pelo workflow Docs)
+docs/typedoc/
