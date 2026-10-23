@@ -8,21 +8,21 @@ Retorna um `BrasilClient` congelado com os recursos abaixo e `clearCache()`.
 
 ## `cep`
 
-| Método | Retorno | Erros |
-|--------|---------|-------|
-| `get(cep: string)` | `Endereco` | `ValidationError`, `NotFoundError`, `TimeoutError`, `ProviderError` |
-| `search({ uf, cidade, logradouro })` | `Endereco[]` (vazio se nada encontrado) | `ValidationError` (cidade/logradouro < 3 caracteres, UF inválida) |
+| Método                               | Retorno                                 | Erros                                                               |
+| ------------------------------------ | --------------------------------------- | ------------------------------------------------------------------- |
+| `get(cep: string)`                   | `Endereco`                              | `ValidationError`, `NotFoundError`, `TimeoutError`, `ProviderError` |
+| `search({ uf, cidade, logradouro })` | `Endereco[]` (vazio se nada encontrado) | `ValidationError` (cidade/logradouro < 3 caracteres, UF inválida)   |
 
 ```ts
 interface Endereco {
-  cep: string;              // só dígitos
+  cep: string; // só dígitos
   logradouro: string;
   complemento?: string;
   bairro: string;
   cidade: string;
   uf: UF;
-  codigoIbge?: string;      // ViaCEP
-  ddd?: string;             // ViaCEP
+  codigoIbge?: string; // ViaCEP
+  ddd?: string; // ViaCEP
   coordenadas?: { latitude: number; longitude: number }; // BrasilAPI, quando disponível
   fonte: 'viacep' | 'brasilapi';
 }

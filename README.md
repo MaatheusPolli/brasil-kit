@@ -35,7 +35,7 @@ import { createBrasilClient, NotFoundError } from 'brasil-sdk';
 
 const brasil = createBrasilClient({ cache: 'memory', timeout: 5000 });
 
-const endereco = await brasil.cep.get('01001-000');      // tipado, com fallback
+const endereco = await brasil.cep.get('01001-000'); // tipado, com fallback
 // { cep: '01001000', logradouro: 'Praça da Sé', cidade: 'São Paulo', uf: 'SP', fonte: 'viacep', ... }
 
 const municipios = await brasil.ibge.municipiosPorUf('SP');
@@ -43,20 +43,22 @@ const municipios = await brasil.ibge.municipiosPorUf('SP');
 try {
   await brasil.cep.get('99999-999');
 } catch (err) {
-  if (err instanceof NotFoundError) { /* CEP inexistente */ }
+  if (err instanceof NotFoundError) {
+    /* CEP inexistente */
+  }
 }
 ```
 
 ## Recursos
 
-| Recurso | Métodos | Provider(s) |
-|---------|---------|-------------|
-| `cep` | `get(cep)`, `search({ uf, cidade, logradouro })` | ViaCEP → BrasilAPI (fallback) |
-| `cnpj` | `get(cnpj)` — dados cadastrais, sócios e CNAEs (aceita CNPJ numérico e alfanumérico) | BrasilAPI → Minha Receita (fallback) |
-| `ibge` | `estados()`, `municipiosPorUf(uf)`, `municipioPorCodigo(cod)` | IBGE |
-| `bancos` | `list()`, `getByCode(code)` | BrasilAPI |
-| `feriados` | `get(ano)` | BrasilAPI |
-| `ddd` | `get(ddd)` | BrasilAPI |
+| Recurso    | Métodos                                                                              | Provider(s)                          |
+| ---------- | ------------------------------------------------------------------------------------ | ------------------------------------ |
+| `cep`      | `get(cep)`, `search({ uf, cidade, logradouro })`                                     | ViaCEP → BrasilAPI (fallback)        |
+| `cnpj`     | `get(cnpj)` — dados cadastrais, sócios e CNAEs (aceita CNPJ numérico e alfanumérico) | BrasilAPI → Minha Receita (fallback) |
+| `ibge`     | `estados()`, `municipiosPorUf(uf)`, `municipioPorCodigo(cod)`                        | IBGE                                 |
+| `bancos`   | `list()`, `getByCode(code)`                                                          | BrasilAPI                            |
+| `feriados` | `get(ano)`                                                                           | BrasilAPI                            |
+| `ddd`      | `get(ddd)`                                                                           | BrasilAPI                            |
 
 Toda entrada é validada **antes** de ir para a rede (CEP com 8 dígitos, CNPJ com dígitos verificadores, UF válida...) e gera `ValidationError` de forma síncrona.
 
@@ -77,7 +79,9 @@ setTimeout(() => controller.abort(), 300);
 try {
   await brasil.cep.get('01001000', { signal: controller.signal });
 } catch (err) {
-  if (err instanceof CanceledError) { /* busca cancelada */ }
+  if (err instanceof CanceledError) {
+    /* busca cancelada */
+  }
 }
 ```
 
@@ -85,17 +89,18 @@ try {
 
 ```ts
 createBrasilClient({
-  timeout: 5000,          // ms por tentativa
-  retries: 2,             // tentativas extras em erro transitório
-  cache: 'memory',        // 'memory' | 'none' | CacheAdapter
-  cacheTtl: 3_600_000,    // ms
-  fetch: customFetch,     // injetável (testes, proxies, runtimes antigos)
-  interceptors: {         // ou um array de interceptors, chamados em ordem
-    onRequest:  ({ url, provider, attempt }) => {},
+  timeout: 5000, // ms por tentativa
+  retries: 2, // tentativas extras em erro transitório
+  cache: 'memory', // 'memory' | 'none' | CacheAdapter
+  cacheTtl: 3_600_000, // ms
+  fetch: customFetch, // injetável (testes, proxies, runtimes antigos)
+  interceptors: {
+    // ou um array de interceptors, chamados em ordem
+    onRequest: ({ url, provider, attempt }) => {},
     onResponse: ({ status, durationMs }) => {},
-    onError:    ({ error }) => {},
+    onError: ({ error }) => {},
   },
-  cep: { providers: ['brasilapi', 'viacep'] },          // ordem do fallback
+  cep: { providers: ['brasilapi', 'viacep'] }, // ordem do fallback
   cnpj: { providers: ['minhareceita', 'brasilapi'] },
 });
 ```
@@ -107,9 +112,10 @@ A configuração é validada e congelada na criação. Não há estado global: d
 ```ts
 import { createLocalStorageCache, type CacheAdapter } from 'brasil-sdk';
 
-createBrasilClient({ cache: createLocalStorageCache() });        // browser
+createBrasilClient({ cache: createLocalStorageCache() }); // browser
 
-const redisCache: CacheAdapter = {                                 // qualquer backend
+const redisCache: CacheAdapter = {
+  // qualquer backend
   get: async (k) => JSON.parse((await redis.get(k)) ?? 'null') ?? undefined,
   set: async (k, v, ttl) => void (await redis.set(k, JSON.stringify(v), { PX: ttl })),
 };
@@ -133,19 +139,19 @@ createBrasilClient(config)
                  └── core/  http, retry, fallback, cache, errors     ← timeout, backoff, interceptors
 ```
 
-- **Recursos** são objetos criados por *factory*, que recebem as dependências por parâmetro. Não há singleton nem estado global.
+- **Recursos** são objetos criados por _factory_, que recebem as dependências por parâmetro. Não há singleton nem estado global.
 - **Providers** fazem a normalização na borda: o consumidor nunca vê o formato bruto de nenhuma API, e o campo `fonte` diz quem respondeu.
 - **Core** concentra a resiliência: cada tentativa tem timeout próprio; erros transitórios são repetidos com backoff e, se persistirem, passam para o próximo provider.
 
 ## Erros
 
-| Classe | `code` | Quando |
-|--------|--------|--------|
-| `ValidationError` | `VALIDATION` | Entrada inválida (lançado antes da rede) |
-| `NotFoundError` | `NOT_FOUND` | 404, ou ViaCEP `200 {erro:true}`, ou IBGE `200 []` |
-| `RateLimitError` | `RATE_LIMIT` | HTTP 429 (`retryAfter` quando disponível) |
-| `TimeoutError` | `TIMEOUT` | Estourou o `timeout` (a requisição é abortada) |
-| `ProviderError` | `PROVIDER` | Rede, 5xx, 4xx inesperado, resposta malformada |
+| Classe            | `code`       | Quando                                             |
+| ----------------- | ------------ | -------------------------------------------------- |
+| `ValidationError` | `VALIDATION` | Entrada inválida (lançado antes da rede)           |
+| `NotFoundError`   | `NOT_FOUND`  | 404, ou ViaCEP `200 {erro:true}`, ou IBGE `200 []` |
+| `RateLimitError`  | `RATE_LIMIT` | HTTP 429 (`retryAfter` quando disponível)          |
+| `TimeoutError`    | `TIMEOUT`    | Estourou o `timeout` (a requisição é abortada)     |
+| `ProviderError`   | `PROVIDER`   | Rede, 5xx, 4xx inesperado, resposta malformada     |
 
 Todas estendem `BrasilKitError` e carregam `provider`, `status` e `url` quando aplicável. Detalhes de retry e fallback em [docs/resiliencia.md](docs/resiliencia.md).
 
@@ -167,7 +173,9 @@ try {
 } catch {
   // tenta a BrasilAPI? com qual formato de retorno?
   // retry? cache? tipagem?
-} finally { clearTimeout(t); }
+} finally {
+  clearTimeout(t);
+}
 ```
 
 </td><td>
@@ -183,13 +191,13 @@ Validação, timeout, retry com backoff, fallback, normalização, cache e erros
 
 ## Runtimes suportados
 
-| Runtime | Como é verificado na CI |
-|---------|-------------------------|
-| Node 20 | smoke test do pacote compilado |
+| Runtime      | Como é verificado na CI             |
+| ------------ | ----------------------------------- |
+| Node 20      | smoke test do pacote compilado      |
 | Node 22 e 24 | suíte completa + smoke test ESM/CJS |
-| Deno 2 | smoke test do pacote compilado |
-| Bun | smoke test do pacote compilado |
-| Browsers | suíte completa em ambiente jsdom |
+| Deno 2       | smoke test do pacote compilado      |
+| Bun          | smoke test do pacote compilado      |
+| Browsers     | suíte completa em ambiente jsdom    |
 
 ## Desenvolvimento
 
@@ -202,6 +210,8 @@ npm install
 ```
 
 ```bash
+npm run lint           # ESLint (typescript-eslint, com type checking)
+npm run format         # Prettier (`format:check` só verifica)
 npm test               # Vitest (Node)
 npm run test:jsdom     # mesma suíte em ambiente de browser
 npm run coverage       # exige ≥ 90%
@@ -242,7 +252,7 @@ docs/                   api.md, resiliencia.md
 ## Contribuindo
 
 1. Abra uma issue descrevendo o problema ou a API que quer adicionar.
-2. Crie uma branch, implemente e rode `npm run typecheck && npm run coverage && npm run test:jsdom`.
+2. Crie uma branch, implemente e rode `npm run lint && npm run format:check && npm run typecheck && npm run coverage && npm run test:jsdom`.
 3. Registre a mudança com `npm run changeset`.
 4. Abra um pull request.
 

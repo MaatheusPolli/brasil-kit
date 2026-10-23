@@ -20,7 +20,10 @@ describe('ibge', () => {
 
   it('municipioPorCodigo aceita objeto ou lista', async () => {
     const m = fixture('ibge-municipio-3550308');
-    const { brasil } = client([['municipios/3550308', ok(m)], ['municipios/3304557', ok([{ ...(m as object), id: 3304557 }])]]);
+    const { brasil } = client([
+      ['municipios/3550308', ok(m)],
+      ['municipios/3304557', ok([{ ...(m as object), id: 3304557 }])],
+    ]);
     await expect(brasil.ibge.municipioPorCodigo(3550308)).resolves.toMatchObject({ nome: 'São Paulo' });
     await expect(brasil.ibge.municipioPorCodigo('3304557')).resolves.toMatchObject({ codigo: '3304557' });
   });

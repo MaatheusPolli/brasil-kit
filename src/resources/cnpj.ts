@@ -17,7 +17,12 @@ export interface CnpjResource {
 }
 
 export function createCnpj(ctx: CoreContext, options: CnpjResourceOptions = {}): CnpjResource {
-  const lookup = { brasilapi: createBrasilApi(ctx.http).getCnpj, minhareceita: createMinhaReceita(ctx.http).getCnpj };
+  const brasilapi = createBrasilApi(ctx.http);
+  const minhareceita = createMinhaReceita(ctx.http);
+  const lookup: Record<FonteCnpj, (cnpj: string, options?: RequestOptions) => Promise<Empresa>> = {
+    brasilapi: (cnpj, options) => brasilapi.getCnpj(cnpj, options),
+    minhareceita: (cnpj, options) => minhareceita.getCnpj(cnpj, options),
+  };
   const order = options.providers ?? (['brasilapi', 'minhareceita'] as const);
   return {
     get(input, options) {

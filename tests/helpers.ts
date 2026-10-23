@@ -11,7 +11,7 @@ type Route = [match: string | RegExp, reply: Reply | ((url: string) => Reply)];
 /** Fetch falso: casa a URL com as rotas em ordem. Nenhuma chamada real de rede. */
 export function mockFetch(routes: Route[]) {
   const calls: string[] = [];
-  const fn = async (input: RequestInfo | URL): Promise<Response> => {
+  const fn: typeof globalThis.fetch = async (input) => {
     const url = String(input);
     calls.push(url);
     const route = routes.find(([m]) => (typeof m === 'string' ? url.includes(m) : m.test(url)));
@@ -23,7 +23,7 @@ export function mockFetch(routes: Route[]) {
       headers: { 'content-type': 'application/json', ...reply.headers },
     });
   };
-  return Object.assign(fn as typeof globalThis.fetch, { calls });
+  return Object.assign(fn, { calls });
 }
 
 export const ok = (body: unknown) => ({ status: 200, body });

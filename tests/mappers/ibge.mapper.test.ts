@@ -8,7 +8,12 @@ const sudeste = { id: 3, sigla: 'SE', nome: 'Sudeste' };
 describe('ibge mappers', () => {
   it('município via microrregião', () => {
     expect(mapIbgeMunicipio(fixture('ibge-municipio-3550308'))).toEqual({
-      codigo: '3550308', nome: 'São Paulo', uf: 'SP', estado: 'São Paulo', regiao: sudeste, fonte: 'ibge',
+      codigo: '3550308',
+      nome: 'São Paulo',
+      uf: 'SP',
+      estado: 'São Paulo',
+      regiao: sudeste,
+      fonte: 'ibge',
     });
   });
 

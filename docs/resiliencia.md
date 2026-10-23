@@ -14,19 +14,19 @@ Cada **tentativa** tem seu próprio `AbortController`. Ao estourar `timeout`, a 
 
 Só erros **transitórios** são repetidos:
 
-| Erro | Retry? | Fallback? |
-|------|--------|-----------|
-| Falha de rede (`ProviderError` sem `status`) | ✅ | ✅ |
-| HTTP 5xx | ✅ | ✅ |
-| `TimeoutError` | ✅ | ✅ |
-| `RateLimitError` (429) | ✅ | ✅ |
-| Resposta malformada do provider | ✅ | ✅ |
-| HTTP 404 / `NotFoundError` | ❌ | ❌ |
-| HTTP 403 (acesso negado pelo provider) | ❌ | ✅ |
-| Outros 4xx (400, 401...) | ❌ | ❌ |
-| `ValidationError` | — (nem chega à rede) | — |
+| Erro                                         | Retry?               | Fallback? |
+| -------------------------------------------- | -------------------- | --------- |
+| Falha de rede (`ProviderError` sem `status`) | ✅                   | ✅        |
+| HTTP 5xx                                     | ✅                   | ✅        |
+| `TimeoutError`                               | ✅                   | ✅        |
+| `RateLimitError` (429)                       | ✅                   | ✅        |
+| Resposta malformada do provider              | ✅                   | ✅        |
+| HTTP 404 / `NotFoundError`                   | ❌                   | ❌        |
+| HTTP 403 (acesso negado pelo provider)       | ❌                   | ✅        |
+| Outros 4xx (400, 401...)                     | ❌                   | ❌        |
+| `ValidationError`                            | — (nem chega à rede) | —         |
 
-O atraso entre tentativas usa backoff exponencial com *full jitter*:
+O atraso entre tentativas usa backoff exponencial com _full jitter_:
 `atraso = aleatório(0, min(maxDelay, baseDelay × 2^tentativa))`, com `baseDelay = 200ms` e `maxDelay = 5s` por padrão (ajustáveis em `retryOptions`). O jitter evita que muitos clientes repitam em sincronia contra um serviço já sobrecarregado.
 
 ## Fallback
@@ -49,4 +49,4 @@ Quando todos falham, o erro lançado é o do **último** provider tentado.
 
 ## Cache
 
-Só respostas de sucesso são cacheadas; erros nunca. TTL padrão de 1 hora (24 horas para dados do IBGE). O cache é *best-effort*: um `localStorage` cheio não quebra a chamada.
+Só respostas de sucesso são cacheadas; erros nunca. TTL padrão de 1 hora (24 horas para dados do IBGE). O cache é _best-effort_: um `localStorage` cheio não quebra a chamada.

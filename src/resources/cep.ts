@@ -22,7 +22,10 @@ export function createCep(ctx: CoreContext, options: CepResourceOptions = {}): C
   const viacep = createViaCep(ctx.http);
   const brasilapi = createBrasilApi(ctx.http);
   const order = options.providers ?? (['viacep', 'brasilapi'] as const);
-  const lookup = { viacep: viacep.getCep, brasilapi: brasilapi.getCep };
+  const lookup: Record<FonteCep, (cep: string, options?: RequestOptions) => Promise<Endereco>> = {
+    viacep: (cep, options) => viacep.getCep(cep, options),
+    brasilapi: (cep, options) => brasilapi.getCep(cep, options),
+  };
 
   return {
     get(input, options) {
@@ -30,7 +33,7 @@ export function createCep(ctx: CoreContext, options: CepResourceOptions = {}): C
       return cached(ctx, `cep:${cep}`, () => fallback(order.map((name) => () => lookup[name](cep, options))), dedupe(options));
     },
     search(params, options) {
-      const uf = normalizeUf(params?.uf as string);
+      const uf = normalizeUf(params?.uf);
       const cidade = requireText(params.cidade, 'cidade', 3);
       const logradouro = requireText(params.logradouro, 'logradouro', 3);
       const key = `cep:search:${uf}:${cidade.toLowerCase()}:${logradouro.toLowerCase()}`;

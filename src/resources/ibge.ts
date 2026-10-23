@@ -10,7 +10,7 @@ const DAY = 24 * 60 * 60 * 1000;
 
 export interface IbgeResource {
   estados(options?: RequestOptions): Promise<Estado[]>;
-  municipiosPorUf(uf: UF | string, options?: RequestOptions): Promise<Municipio[]>;
+  municipiosPorUf(uf: UF | (string & {}), options?: RequestOptions): Promise<Municipio[]>;
   /** Código IBGE de 7 dígitos (ex.: `3550308` para São Paulo). */
   municipioPorCodigo(codigo: string | number, options?: RequestOptions): Promise<Municipio>;
 }

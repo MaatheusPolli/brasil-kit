@@ -13,23 +13,35 @@ describe('cep.get', () => {
   });
 
   it('ViaCEP fora do ar (500) → BrasilAPI assume', async () => {
-    const { brasil } = client([['viacep', { status: 500 }], ['brasilapi.com.br/api/cep/v2/01001000', ok(brasilapi)]]);
+    const { brasil } = client([
+      ['viacep', { status: 500 }],
+      ['brasilapi.com.br/api/cep/v2/01001000', ok(brasilapi)],
+    ]);
     await expect(brasil.cep.get('01001000')).resolves.toMatchObject({ fonte: 'brasilapi', coordenadas: { latitude: -23.5503 } });
   });
 
   it('ViaCEP com erro de rede → BrasilAPI assume', async () => {
-    const { brasil } = client([['viacep', new TypeError('fetch failed')], ['brasilapi', ok(brasilapi)]]);
+    const { brasil } = client([
+      ['viacep', new TypeError('fetch failed')],
+      ['brasilapi', ok(brasilapi)],
+    ]);
     await expect(brasil.cep.get('01001000')).resolves.toMatchObject({ fonte: 'brasilapi' });
   });
 
   it('não encontrado ({erro:true}) → NotFoundError sem fallback', async () => {
-    const { brasil, fetch } = client([['viacep', ok({ erro: 'true' })], ['brasilapi', ok(brasilapi)]]);
+    const { brasil, fetch } = client([
+      ['viacep', ok({ erro: 'true' })],
+      ['brasilapi', ok(brasilapi)],
+    ]);
     await expect(brasil.cep.get('99999999')).rejects.toBeInstanceOf(NotFoundError);
     expect(fetch.calls.every((u) => u.includes('viacep'))).toBe(true);
   });
 
   it('ambos fora → ProviderError', async () => {
-    const { brasil } = client([['viacep', { status: 502 }], ['brasilapi', { status: 503 }]]);
+    const { brasil } = client([
+      ['viacep', { status: 502 }],
+      ['brasilapi', { status: 503 }],
+    ]);
     await expect(brasil.cep.get('01001000')).rejects.toMatchObject({ provider: 'brasilapi', status: 503 });
   });
 

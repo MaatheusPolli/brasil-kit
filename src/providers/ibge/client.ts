@@ -24,7 +24,8 @@ export function createIbge(http: HttpClient, baseUrl = IBGE_URL) {
       // O IBGE responde 200 com `[]` para código inexistente.
       const raw = await http.getJson<IbgeMunicipio | IbgeMunicipio[]>(`${baseUrl}/municipios/${codigo}`, P, options);
       const item = Array.isArray(raw) ? raw[0] : raw;
-      if (!item || typeof item !== 'object' || !('id' in item)) throw new NotFoundError(`Município ${codigo} não encontrado`, { provider: P });
+      if (!item || typeof item !== 'object' || !('id' in item))
+        throw new NotFoundError(`Município ${codigo} não encontrado`, { provider: P });
       return mapIbgeMunicipio(item);
     },
   };

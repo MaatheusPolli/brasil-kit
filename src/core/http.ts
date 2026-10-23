@@ -87,8 +87,7 @@ export function createHttp(options: HttpOptions): HttpClient {
   }
 
   return {
-    getJson: (url, provider, options) =>
-      withRetry((n) => attempt(url, provider, n, options?.signal), { ...retry, retries }),
+    getJson: (url, provider, options) => withRetry((n) => attempt(url, provider, n, options?.signal), { ...retry, retries }),
   };
 }
 
@@ -101,7 +100,10 @@ function statusError(response: Response, provider: string, url: string): BrasilK
   if (response.status === 404) return new NotFoundError(`Não encontrado em ${provider}`, details);
   if (response.status === 429) {
     const header = Number(response.headers.get('retry-after'));
-    return new RateLimitError(`Rate limit em ${provider}`, { ...details, retryAfter: Number.isFinite(header) && header > 0 ? header : undefined });
+    return new RateLimitError(`Rate limit em ${provider}`, {
+      ...details,
+      retryAfter: Number.isFinite(header) && header > 0 ? header : undefined,
+    });
   }
   return new ProviderError(`${provider} respondeu HTTP ${response.status}`, details);
 }

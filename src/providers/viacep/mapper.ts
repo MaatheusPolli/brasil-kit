@@ -6,7 +6,7 @@ import type { ViaCepEndereco, ViaCepResponse } from './types.js';
 const blank = (v: string | undefined) => (v && v.trim() ? v.trim() : undefined);
 
 export function isViaCepErro(raw: unknown): boolean {
-  return typeof raw === 'object' && raw !== null && 'erro' in raw && String((raw as { erro: unknown }).erro) === 'true';
+  return typeof raw === 'object' && raw !== null && 'erro' in raw && String(raw.erro) === 'true';
 }
 
 export function mapViaCepEndereco(raw: ViaCepResponse): Endereco {

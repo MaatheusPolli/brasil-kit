@@ -1,0 +1,6 @@
+dist/
+coverage/
+docs/typedoc/
+CHANGELOG.md
+package-lock.json
+tests/fixtures/

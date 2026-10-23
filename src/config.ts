@@ -31,6 +31,8 @@ export interface ResolvedConfig {
   readonly retryOptions?: Omit<RetryOptions, 'retries'>;
 }
 
+const isMany = (value: Interceptors | readonly Interceptors[]): value is readonly Interceptors[] => Array.isArray(value);
+
 export const DEFAULTS = Object.freeze({ timeout: 5000, retries: 2, cacheTtl: 60 * 60 * 1000 });
 
 export function resolveConfig(config: BrasilClientConfig = {}): ResolvedConfig {
@@ -50,11 +52,11 @@ export function resolveConfig(config: BrasilClientConfig = {}): ResolvedConfig {
   else if (typeof option === 'object' && option && typeof option.get === 'function' && typeof option.set === 'function') cache = option;
   else throw new ValidationError("cache deve ser 'memory', 'none' ou um CacheAdapter");
 
-  const fetchFn = config.fetch ?? (globalThis.fetch as typeof globalThis.fetch | undefined);
+  const fetchFn = config.fetch ?? globalThis.fetch;
   if (typeof fetchFn !== 'function') throw new ValidationError('fetch indisponível: passe `fetch` na configuração');
 
   const raw = config.interceptors;
-  const interceptors = Object.freeze(raw === undefined ? [] : Array.isArray(raw) ? [...raw] : [raw as Interceptors]);
+  const interceptors = Object.freeze(raw === undefined ? [] : isMany(raw) ? [...raw] : [raw]);
 
   return Object.freeze({
     timeout,

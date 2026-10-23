@@ -22,7 +22,13 @@ export function normalizeUf(input: string): UF {
  * pelo módulo 11 sobre o valor ASCII de cada caractere menos 48.
  */
 export function normalizeCnpj(input: string): string {
-  const value = typeof input === 'string' ? input.trim().replace(/[.\-/\s]/g, '').toUpperCase() : '';
+  const value =
+    typeof input === 'string'
+      ? input
+          .trim()
+          .replace(/[.\-/\s]/g, '')
+          .toUpperCase()
+      : '';
   if (!/^[A-Z0-9]{12}[0-9]{2}$/.test(value) || isRepeated(value) || !cnpjChecksumOk(value))
     throw new ValidationError(`CNPJ inválido: "${String(input)}"`);
   return value;

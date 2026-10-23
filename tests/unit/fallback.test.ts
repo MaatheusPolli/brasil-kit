@@ -16,7 +16,9 @@ describe('fallback', () => {
   });
 
   it('timeout e rate limit acionam fallback', async () => {
-    await expect(fallback([() => Promise.reject(new TimeoutError()), () => Promise.reject(new RateLimitError()), async () => 'c'])).resolves.toBe('c');
+    await expect(
+      fallback([() => Promise.reject(new TimeoutError()), () => Promise.reject(new RateLimitError()), async () => 'c']),
+    ).resolves.toBe('c');
   });
 
   it('todos falham → lança o último erro', async () => {
@@ -26,7 +28,9 @@ describe('fallback', () => {
 
   it('403 aciona fallback, mas 400 não', async () => {
     await expect(fallback([() => Promise.reject(new ProviderError('x', { status: 403 })), async () => 'b'])).resolves.toBe('b');
-    await expect(fallback([() => Promise.reject(new ProviderError('x', { status: 400 })), async () => 'b'])).rejects.toMatchObject({ status: 400 });
+    await expect(fallback([() => Promise.reject(new ProviderError('x', { status: 400 })), async () => 'b'])).rejects.toMatchObject({
+      status: 400,
+    });
   });
 
   it('lista vazia é erro', async () => {

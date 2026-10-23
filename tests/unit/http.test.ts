@@ -76,13 +76,31 @@ describe('http', () => {
     const http = createHttp({ fetch, timeout: 1000, retries: 1, interceptors: [log('A'), log('B')], retry: { sleep: async () => {} } });
     await expect(http.getJson('https://a', 'p')).resolves.toBe(1);
     expect(events).toEqual([
-      'A:req:0', 'B:req:0', 'A:res:500', 'B:res:500', 'A:err:PROVIDER', 'B:err:PROVIDER',
-      'A:req:1', 'B:req:1', 'A:res:200', 'B:res:200',
+      'A:req:0',
+      'B:req:0',
+      'A:res:500',
+      'B:res:500',
+      'A:err:PROVIDER',
+      'B:err:PROVIDER',
+      'A:req:1',
+      'B:req:1',
+      'A:res:200',
+      'B:res:200',
     ]);
   });
 
   it('erro estranho de um interceptor é embrulhado em ProviderError', async () => {
-    const http = createHttp({ ...base, fetch: mockFetch([['a', ok(1)]]), interceptors: [{ onResponse: () => { throw 'boom'; } }] });
+    const http = createHttp({
+      ...base,
+      fetch: mockFetch([['a', ok(1)]]),
+      interceptors: [
+        {
+          onResponse: () => {
+            throw 'boom';
+          },
+        },
+      ],
+    });
     await expect(http.getJson('https://a', 'p')).rejects.toBeInstanceOf(ProviderError);
   });
 });

@@ -13,7 +13,12 @@ const soBrasilApi = createBrasilClient({ ...opts, cep: { providers: ['brasilapi'
 describe('CEP', () => {
   it('ViaCEP: 01001-000', async () => {
     expect(await soViaCep.cep.get('01001-000')).toMatchObject({
-      cep: '01001000', uf: 'SP', cidade: 'São Paulo', codigoIbge: '3550308', ddd: '11', fonte: 'viacep',
+      cep: '01001000',
+      uf: 'SP',
+      cidade: 'São Paulo',
+      codigoIbge: '3550308',
+      ddd: '11',
+      fonte: 'viacep',
     });
   });
 

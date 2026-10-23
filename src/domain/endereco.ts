@@ -22,7 +22,7 @@ export interface Endereco {
 }
 
 export interface BuscaEnderecoParams {
-  uf: UF | string;
+  uf: UF | (string & {});
   cidade: string;
   logradouro: string;
 }

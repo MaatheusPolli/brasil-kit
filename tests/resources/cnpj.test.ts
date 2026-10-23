@@ -20,7 +20,10 @@ describe('cnpj.get', () => {
   });
 
   it('BrasilAPI fora (500) → Minha Receita; ordem configurável', async () => {
-    const a = client([['brasilapi', { status: 500 }], ['minhareceita', ok(fixture('brasilapi-cnpj'))]]);
+    const a = client([
+      ['brasilapi', { status: 500 }],
+      ['minhareceita', ok(fixture('brasilapi-cnpj'))],
+    ]);
     await expect(a.brasil.cnpj.get('00000000000191')).resolves.toMatchObject({ fonte: 'minhareceita' });
     const b = client([['minhareceita', ok(fixture('brasilapi-cnpj'))]], { cnpj: { providers: ['minhareceita'] } });
     await expect(b.brasil.cnpj.get('00000000000191')).resolves.toMatchObject({ fonte: 'minhareceita' });
@@ -46,8 +49,11 @@ describe('cnpj.get', () => {
     expect(fetch.calls).toHaveLength(1);
   });
 
-  it.each(['123', '00000000000192', '11111111111111', '11222333000180', '00000000E08G13', 'AAAAAAAAAAAAAA', '0000000E08G12'])('inválido %s', (cnpj) => {
-    const { brasil } = client([]);
-    expect(() => brasil.cnpj.get(cnpj)).toThrow(ValidationError);
-  });
+  it.each(['123', '00000000000192', '11111111111111', '11222333000180', '00000000E08G13', 'AAAAAAAAAAAAAA', '0000000E08G12'])(
+    'inválido %s',
+    (cnpj) => {
+      const { brasil } = client([]);
+      expect(() => brasil.cnpj.get(cnpj)).toThrow(ValidationError);
+    },
+  );
 });

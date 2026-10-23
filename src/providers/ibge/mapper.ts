@@ -1,5 +1,5 @@
 import { ProviderError } from '../../core/errors.js';
-import { isUF, type UF } from '../../domain/uf.js';
+import { isUF } from '../../domain/uf.js';
 import type { Estado, Municipio } from '../../domain/municipio.js';
 import type { IbgeMunicipio, IbgeUF } from './types.js';
 
@@ -7,7 +7,7 @@ export function mapIbgeEstado(raw: IbgeUF): Estado {
   if (!isUF(raw.sigla)) throw new ProviderError(`UF inesperada do IBGE: ${raw.sigla}`, { provider: 'ibge' });
   return {
     id: raw.id,
-    sigla: raw.sigla as UF,
+    sigla: raw.sigla,
     nome: raw.nome,
     regiao: { id: raw.regiao.id, sigla: raw.regiao.sigla, nome: raw.regiao.nome },
   };

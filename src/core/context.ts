@@ -38,7 +38,7 @@ export async function cached<T>(ctx: CoreContext, key: string, fn: () => Promise
   }
 
   let pending = inFlight.get(ctx);
-  if (!pending) inFlight.set(ctx, (pending = new Map()));
+  if (!pending) inFlight.set(ctx, (pending = new Map<string, Promise<unknown>>()));
   const running = pending.get(key) as Promise<T> | undefined;
   if (running) return running;
 

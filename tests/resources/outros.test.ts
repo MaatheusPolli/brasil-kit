@@ -13,7 +13,10 @@ describe('bancos', () => {
   });
 
   it('não encontrado, resposta inválida e entrada inválida', async () => {
-    const { brasil } = client([['banks/v1/999', { status: 404 }], ['banks/v1', ok({})]]);
+    const { brasil } = client([
+      ['banks/v1/999', { status: 404 }],
+      ['banks/v1', ok({})],
+    ]);
     await expect(brasil.bancos.getByCode(999)).rejects.toBeInstanceOf(NotFoundError);
     await expect(brasil.bancos.list()).rejects.toBeInstanceOf(ProviderError);
     expect(() => brasil.bancos.getByCode('abc')).toThrow(ValidationError);
