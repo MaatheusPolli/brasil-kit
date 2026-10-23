@@ -1,5 +1,14 @@
 # brasil-sdk
 
+## 0.3.1
+
+### Patch Changes
+
+- 53f9a94: Ajustes internos apontados pelo ESLint: os providers do fallback de CEP/CNPJ passam a ser
+  chamados por closures (em vez de métodos desacoplados do objeto), `uf` aceita `UF | (string & {})`
+  para manter o autocomplete das UFs, e a resolução de interceptors ficou com tipos estreitos.
+  Sem mudança de comportamento.
+
 ## 0.3.0
 
 ### Minor Changes
